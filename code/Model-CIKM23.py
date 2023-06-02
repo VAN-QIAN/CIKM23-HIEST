@@ -326,11 +326,6 @@ class Our(AbstractTraoficStateModel):
         x = self.start_conv(x)  # (batch_size, residual_channels, num_nodes, self.receptive_field)
         skip = 0
 
-        # # calculate the current adaptive adj matrix once per iteration
-        # new_supports = None
-        # if self.gcn_bool and self.addaptadj and self.supports is not None:
-        #     adp = F.softmax(F.relu(torch.mm(self.nodevec1, self.nodevec2)), dim=1)
-        #     new_supports = self.supports + [adp]
 
         for i in range(self.blocks * self.layers):
 
@@ -444,15 +439,15 @@ class Our(AbstractTraoficStateModel):
         hrt = nr.permute(3,0,1,2)
         hrt = torch.reshape(hrt,(-1,self.regional_nodes))
         # reconstruct the adjacency matrix of the original graph
-        ac_hat = torch.sigmoid(hr.float() @ hrt.float())
+        ar_hat = torch.sigmoid(hr.float() @ hrt.float())
         
         
         preLoss = loss.masked_mae_torch(y_predicted, y_true, 0)
         recLoss0 = F.binary_cross_entropy(ao_hat,self.ao,reduction='mean')
-        recLoss = F.binary_cross_entropy(ac_hat,self.adj_mxr.float(),reduction='mean')
+        recLoss = F.binary_cross_entropy(ar_hat,self.adj_mxr.float(),reduction='mean')
         ortLoss = self.ortLoss(xg)
         
-        # self._logger.inoo('fine_loss: {0} bce_loss:{1} bce_loss0:{2} ortLoss:{3}'.format(preLoss,recLoss,recLoss0,ortLoss))
+        # self._logger.info('fine_loss: {0} bce_loss:{1} bce_loss0:{2} ortLoss:{3}'.format(preLoss,recLoss,recLoss0,ortLoss))
         return preLoss + 0.01*recLoss + 0.01*recLoss0 + 0.1*ortLoss
 
     def predict(self, batch):
