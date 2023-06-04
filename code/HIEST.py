@@ -7,6 +7,7 @@ from libcity.model import loss
 import numpy as np
 import scipy.sparse as sp
 from scipy.sparse import linalg
+import os
 
 # torch.autograd.set_detect_anomaly(True)
 def sym_adj(adj):
@@ -100,9 +101,9 @@ class GCN(nn.Module):
         h = F.dropout(h, self.dropout, training=self.training)
         return h
 
-class HGCN(nn.Module):
+class CHGCN(nn.Module):
     def __init__(self, c_in, c_out, dropout,Mor,global_nodes,regional_nodes,device,n1,n2,n3,n4,support_len, order=1):
-        super(HGCN, self).__init__()
+        super(CHGCN, self).__init__()
         self.gcn = GCN(c_in, c_out, dropout, support_len,order)
         
         self.regional_nodes = regional_nodes
@@ -154,13 +155,16 @@ class HGCN(nn.Module):
         return ho,hr,xg
 
 
-class Our(AbstractTraoficStateModel):
+class  HIEST(AbstractTraoficStateModel):
     def __init__(self, conoig, data_feature):
-        self.adj_mx = data_feature.get('adj_mx')
-        self.Mor = data_feature.get('Mor_mx')
+        # Load the processed M_or matrix from .npy file
+        Mor_path = os.path.join(os.getcwd(), "../data/METR_LA/METR_LA.mor.npy")
+        Ao_path = os.path.join(os.getcwd(), "../data/METR_LA/matrix.npy")
+        self.adj_mx =np.load(Ao_path) #data_feature.get('adj_mx')
+        self.Mor = np.load(Mor_path)#data_feature.get('Mor_mx') 
         self.num_nodes = data_feature.get('num_nodes', 1)
         self.regional_nodes = len(self.Mor[0])
-        self.global_nodes = conoig.get('global_nodes', 10)
+        self.global_nodes = conoig.get('global_nodes', 15)
         print('global_nodes '+str(self.global_nodes))
         self.feature_dim = data_feature.get('feature_dim', 2)
         super().__init__(conoig, data_feature)
@@ -168,11 +172,7 @@ class Our(AbstractTraoficStateModel):
         self.dropout = conoig.get('dropout', 0.3)
         self.blocks = conoig.get('blocks', 4)
         self.layers = conoig.get('layers', 2)
-        self.gcn_bool = conoig.get('gcn_bool', True)
-        self.addaptadj = conoig.get('addaptadj', True)
         self.adjtype = conoig.get('adjtype', 'doubletransition')
-        self.randomadj = conoig.get('randomadj', True)
-        self.aptonly = conoig.get('aptonly', True)
         self.kernel_size = conoig.get('kernel_size', 2)
         self.nhid = conoig.get('nhid', 32)
         self.residual_channels = conoig.get('residual_channels', self.nhid)
@@ -245,24 +245,7 @@ class Our(AbstractTraoficStateModel):
         if self.supports is not None:
             self.supports_len += len(self.supports)
 
-        if self.gcn_bool and self.addaptadj:
-            if self.aptinit is None:
-                if self.supports is None:
-                    self.supports = []
-                self.nodevec1 = nn.Parameter(torch.randn(self.num_nodes, 10).to(self.device),
-                                             requires_grad=True).to(self.device)
-                self.nodevec2 = nn.Parameter(torch.randn(10, self.num_nodes).to(self.device),
-                                             requires_grad=True).to(self.device)
-                self.supports_len += 1
-            else:
-                if self.supports is None:
-                    self.supports = []
-                m, p, n = torch.svd(self.aptinit)
-                initemb1 = torch.mm(m[:, :10], torch.diag(p[:10] ** 0.5))
-                initemb2 = torch.mm(torch.diag(p[:10] ** 0.5), n[:, :10].t())
-                self.nodevec1 = nn.Parameter(initemb1, requires_grad=True).to(self.device)
-                self.nodevec2 = nn.Parameter(initemb2, requires_grad=True).to(self.device)
-                self.supports_len += 1
+        
         # self.supports_len = 1 
         print('supports_len '+str(self.supports_len))
         for b in range(self.blocks):
@@ -294,7 +277,7 @@ class Our(AbstractTraoficStateModel):
                 receptive_field += additional_scope
                 additional_scope *= 2
                 # Add the HGCN for hierarchical graph convolution
-                self.gconv.append(HGCN(self.dilation_channels, self.residual_channels,self.dropout,self.Mor_mx,self.global_nodes,self.regional_nodes,device=self.device
+                self.gconv.append(CHGCN(self.dilation_channels, self.residual_channels,self.dropout,self.Mor_mx,self.global_nodes,self.regional_nodes,device=self.device
                                           ,n1=self.n1,n2=self.n2,n3=self.n3,n4=self.n4,support_len=self.supports_len,order=self.order))
 
         self.end_conv_1 = nn.Conv2d(in_channels=self.skip_channels,
