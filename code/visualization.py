@@ -60,7 +60,7 @@ g1 = Graph(len(original))  # 325
 
 for i in range(len(original)):
     for j in range(len(original)):
-        if original[i][j] > 0.8: #0。8
+        if original[i][j] > 0.8: #threshhold
             g1.addEdge(i, j)
 print(np.unique(original[1]))
 # print("SSC in first graph ")
