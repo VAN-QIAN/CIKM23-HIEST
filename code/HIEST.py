@@ -156,7 +156,7 @@ class CHGCN(nn.Module):
 
 
 class  HIEST(AbstractTraoficStateModel):
-    def __init__(self, conoig, data_feature):
+    def __init__(self, config, data_feature):
         # Load the processed M_or matrix from .npy file
         Mor_path = os.path.join(os.getcwd(), "../data/METR_LA/METR_LA.mor.npy")
         Ao_path = os.path.join(os.getcwd(), "../data/METR_LA/matrix.npy")
@@ -164,26 +164,26 @@ class  HIEST(AbstractTraoficStateModel):
         self.Mor = np.load(Mor_path)#data_feature.get('Mor_mx') 
         self.num_nodes = data_feature.get('num_nodes', 1)
         self.regional_nodes = len(self.Mor[0])
-        self.global_nodes = conoig.get('global_nodes', 15)
+        self.global_nodes = config.get('global_nodes', 15)
         print('global_nodes '+str(self.global_nodes))
         self.feature_dim = data_feature.get('feature_dim', 2)
-        super().__init__(conoig, data_feature)
+        super().__init__(config, data_feature)
 
-        self.dropout = conoig.get('dropout', 0.3)
-        self.blocks = conoig.get('blocks', 4)
-        self.layers = conoig.get('layers', 2)
-        self.adjtype = conoig.get('adjtype', 'doubletransition')
-        self.kernel_size = conoig.get('kernel_size', 2)
-        self.nhid = conoig.get('nhid', 32)
-        self.residual_channels = conoig.get('residual_channels', self.nhid)
-        self.dilation_channels = conoig.get('dilation_channels', self.nhid)
-        self.skip_channels = conoig.get('skip_channels', self.nhid * 8)
-        self.end_channels = conoig.get('end_channels', self.nhid * 16)
-        self.input_window = conoig.get('input_window', 1)
-        self.output_window = conoig.get('output_window', 1)
+        self.dropout = config.get('dropout', 0.3)
+        self.blocks = config.get('blocks', 4)
+        self.layers = config.get('layers', 2)
+        self.adjtype = config.get('adjtype', 'doubletransition')
+        self.kernel_size = config.get('kernel_size', 2)
+        self.nhid = config.get('nhid', 32)
+        self.residual_channels = config.get('residual_channels', self.nhid)
+        self.dilation_channels = config.get('dilation_channels', self.nhid)
+        self.skip_channels = config.get('skip_channels', self.nhid * 8)
+        self.end_channels = config.get('end_channels', self.nhid * 16)
+        self.input_window = config.get('input_window', 1)
+        self.output_window = config.get('output_window', 1)
         self.output_dim = self.data_feature.get('output_dim', 1)
-        self.order = conoig.get('order', 2)
-        self.device = conoig.get('device', torch.device('cpu'))
+        self.order = config.get('order', 2)
+        self.device = config.get('device', torch.device('cpu'))
 
         # transfer the matrix into tensor format
         self.Mor_mx = torch.from_numpy(self.Mor).detach().to(device=self.device) # Mapping matrix
@@ -191,13 +191,13 @@ class  HIEST(AbstractTraoficStateModel):
         self.adj_mxr = torch.from_numpy(self.Mor.T @ self.adj_mx @ self.Mor).detach().to(device=self.device) # adjacency matrix for the regional graph
 
         # default values for etas
-        self.n1 = conoig.get('n1',1)
-        self.n2 = conoig.get('n2',1)
-        self.n3 = conoig.get('n3',1)
-        self.n4 = conoig.get('n4',1)
+        self.n1 = config.get('n1',1)
+        self.n2 = config.get('n2',1)
+        self.n3 = config.get('n3',1)
+        self.n4 = config.get('n4',1)
 
         # adaptive layer numbers
-        self.apt_layer = conoig.get('apt_layer', True)
+        self.apt_layer = config.get('apt_layer', True)
         if self.apt_layer:
             self.layers = np.int(
                 np.round(np.log((((self.input_window - 1) / (self.blocks * (self.kernel_size - 1))) + 1)) / np.log(2)))
