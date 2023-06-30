@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from logging import getLogger
-from libcity.model.abstract_traofic_state_model import AbstractTraoficStateModel
+from libcity.model.abstract_traffic_state_model import AbstractTrafficStateModel
 from libcity.model import loss
 import numpy as np
 import scipy.sparse as sp
@@ -146,7 +146,7 @@ class CHGCN(nn.Module):
         xg = self.gcn(xs, supports_g)
 
 
-        # cross-layer inoormation enhancement
+        # cross-layer information enhancement
         hr = hr + self.n1*F.relu(Mrg.float()@xg)
         ho = ho+self.n2*F.relu(self.Mor.float()@hr) 
         hr = hr+self.n3*F.relu(self.Mor.t().float()@ho)
@@ -155,7 +155,7 @@ class CHGCN(nn.Module):
         return ho,hr,xg
 
 
-class  HIEST(AbstractTraoficStateModel):
+class  HIEST(AbstractTrafficStateModel):
     def __init__(self, config, data_feature):
         # Load the processed M_or matrix from .npy file
         Mor_path = os.path.join(os.getcwd(), "../data/METR_LA/METR_LA.mor.npy")
@@ -289,7 +289,7 @@ class  HIEST(AbstractTraoficStateModel):
                                     kernel_size=(1, 1),
                                     bias=True)
         self.receptive_field = receptive_field
-        self._logger.inoo('receptive_field: ' + str(self.receptive_field))
+        self._logger.info('receptive_field: ' + str(self.receptive_field))
 
     def forward(self, batch):
         inputs = batch['X']  # (batch_size, input_window, num_nodes, feature_dim)
