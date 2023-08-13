@@ -88,7 +88,7 @@
             "STResNetCommon", "ACFMCommon", "ASTGCNCommon", "MSTGCNCommon", "ToGCN", "CONVGCN", "STG2Seq",
             "DMVSTNet", "ATDM", "GMAN", "GTS", "STDN", "HGCN", "STSGCN", "STAGGCN", "STNN", "ResLSTM", "DGCN",
             "MultiSTGCnet", "STMGAT", "CRANN", "STTN", "CONVGCNCommon", "DSAN", "DKFN", "CCRNN", "MultiSTGCnetCommon",
-            "GEML", "FNN", "GSNet", "CSTN", "D2STGNN", "STID"
+            "GEML", "FNN", "GSNet", "CSTN", "D2STGNN", "STID","HIEST"
         ],
         "allowed_dataset": [
             "METR_LA", "PEMS_BAY", "PEMSD3", "PEMSD4", "PEMSD7", "PEMSD8", "PEMSD7(M)",
@@ -348,6 +348,11 @@
         "STID": {
             "dataset_class": "TrafficStatePointDataset",
             "executor": "TrafficStateExecutor",
+            "evaluator": "TrafficStateEvaluator"
+        },
+        "HIEST": {
+            "dataset_class": "TrafficStateHIESTDataset",
+            "executor": "HIESTExecutor",
             "evaluator": "TrafficStateEvaluator"
         }
     },

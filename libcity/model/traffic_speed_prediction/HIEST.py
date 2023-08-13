@@ -15,7 +15,7 @@ def sym_adj(adj):
     adj = sp.coo_matrix(adj)
     rowsum = np.array(adj.sum(1))
     d_inv_sqrt = np.power(rowsum, -0.5).flatten()
-    d_inv_sqrt[np.isino(d_inv_sqrt)] = 0.
+    d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
     return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).astype(np.float32).todense()
 
@@ -24,7 +24,7 @@ def asym_adj(adj):
     adj = sp.coo_matrix(adj)
     rowsum = np.array(adj.sum(1)).flatten()
     d_inv = np.power(rowsum, -1).flatten()
-    d_inv[np.isino(d_inv)] = 0.
+    d_inv[np.isinf(d_inv)] = 0.
     d_mat = sp.diags(d_inv)
     return d_mat.dot(adj).astype(np.float32).todense()
 
@@ -39,7 +39,7 @@ def calculate_normalized_laplacian(adj):
     adj = sp.coo_matrix(adj)
     d = np.array(adj.sum(1))
     d_inv_sqrt = np.power(d, -0.5).flatten()
-    d_inv_sqrt[np.isino(d_inv_sqrt)] = 0.
+    d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
     normalized_laplacian = sp.eye(adj.shape[0]) - adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo()
     return normalized_laplacian
@@ -226,15 +226,8 @@ class  HIEST(AbstractTrafficStateModel):
         self.cal_adj(self.adjtype)
         self.supports = [torch.tensor(i).to(self.device) for i in self.adj_mx] # adjacency matrix of the original graph
         # construct the adjacency matrix of the regional graph
-        self.supports_c = [(self.Mor_mx.t().float() @ i.clone().detach() @ self.Mor_mx.float()).to(self.device) for i in self.supports]
-        self.supports_c = [F.softmax(i,dim=-1).to(self.device) for i in self.supports_c]
-
-        if self.randomadj:
-            self.aptinit = None
-        else:
-            self.aptinit = self.supports[0]
-        if self.aptonly:
-            self.supports = None
+        self.supports_r = [(self.Mor_mx.t().float() @ i.clone().detach() @ self.Mor_mx.float()).to(self.device) for i in self.supports]
+        self.supports_r = [F.softmax(i,dim=-1).to(self.device) for i in self.supports_r]
 
         receptive_field = self.output_dim
 
@@ -342,7 +335,7 @@ class  HIEST(AbstractTrafficStateModel):
             skip = s + skip
 
 
-            x,xc,xs = self.gconv[i](x,self.supports,self.supports_c,Mrg) 
+            x,xc,xs = self.gconv[i](x,self.supports,self.supports_r,Mrg) 
             
             x = x + residual[:, :, :, -x.size(3):]
             
