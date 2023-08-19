@@ -13,17 +13,51 @@ For the codes and details corresponding to our core contribution, please refer t
 If you find this repo useful, please cite it as follows,
 
 ```latex
+@inproceedings{HIEST23,
+  title={Rethinking Sensors Modeling:Hierarchical Information Enhanced Traffic Forecasting},
+  author={Qian Ma, Zijian Zhang, Xiangyu Zhao, Haoliang Li, Hongwei Zhao, Yiqi Wang, Zitao Liu, and Wanyu Wang.},
+  booktitle={Proceedings of the 32nd ACM International Conference on Information \& Knowledge Management},
+  url = {https://doi.org/10.1145/3583780.3614910},
+  doi = {10.1145/3583780.3614910},
+  year={2023}
+}
+
+ACM Reference Format:
 Qian Ma, Zijian Zhang, Xiangyu Zhao, Haoliang Li, Hongwei Zhao, Yiqi
 Wang, Zitao Liu, and Wanyu Wang. 2023. Rethinking Sensors Modeling:
-Hierarchical Information Enhanced Traffic Forecasting . In Proceedings of the
-32nd ACM International Conference on Information and Knowledge Manage-
-ment (CIKM ’23), October 21–25, 2023, Birmingham, United Kingdom. ACM,
-New York, NY, USA, 10 pages. https://doi.org/10.1145/XXXXXX.XXXXXX
+Hierarchical Information Enhanced Traffic Forecasting . In Proceedings
+of the 32nd ACM International Conference on Information and Knowledge
+Management (CIKM ’23), October 21–25, 2023, Birmingham, United Kingdom.
+ACM, New York, NY, USA, 10 pages. https://doi.org/10.1145/3583780.3614910
 ```
 
 
 
 # Quick Start
+
+## Acknowledgements
+
+We refer to the code implementation of [lib-city](https://bigscity-libcity-docs.readthedocs.io/en/latest/get_started/quick_start.html)
+Please also cite the following papers if you find the code useful.
+
+```latex
+@inproceedings{libcity,
+  author = {Wang, Jingyuan and Jiang, Jiawei and Jiang, Wenjun and Li, Chao and Zhao, Wayne Xin},
+  title = {LibCity: An Open Library for Traffic Prediction},
+  year = {2021},
+  isbn = {9781450386647},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3474717.3483923},
+  doi = {10.1145/3474717.3483923},
+  booktitle = {Proceedings of the 29th International Conference on Advances in Geographic Information Systems},
+  pages = {145–148},
+  numpages = {4},
+  keywords = {Spatial-temporal System, Reproducibility, Traffic Prediction},
+  location = {Beijing, China},
+  series = {SIGSPATIAL '21}
+}
+```
 
 ## 1. Clone this repo
 
